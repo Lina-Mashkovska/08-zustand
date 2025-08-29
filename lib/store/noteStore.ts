@@ -26,9 +26,9 @@ export const useNoteStore = create<NoteStore>()(
       clearDraft: () => set({ draft: initialDraft }),
     }),
     {
-      name: "notehub-draft", // ключ у localStorage
+      name: "notehub-draft", 
       version: 1,
-      partialize: (state) => ({ draft: state.draft }), // зберігаємо лише draft
+      partialize: (state) => ({ draft: state.draft }), 
     }
   )
 );

@@ -2,10 +2,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSingleNote } from "@/lib/api";
-import NotePreview from "@/components/NotPreview/NotePreview"; // лишаю, як у тебе
-import css from "./NoteDetails.module.css"; // лишаю твій модуль стилів
+import NotePreview from "@/components/NotPreview/NotePreview"; 
+import css from "./NoteDetails.module.css"; 
 
-// ✅ SEO: generateMetadata для сторінки нотатки
+
 export async function generateMetadata(
   { params }: { params: { id: string } }
 ): Promise<Metadata> {
@@ -14,7 +14,7 @@ export async function generateMetadata(
   try {
     const note = await getSingleNote(params.id);
 
-    // Обрізаємо опис до лаконічного прев’ю
+    
     const plain = (note.content ?? "").replace(/\s+/g, " ").trim();
     const short =
       plain.length > 160 ? `${plain.slice(0, 157)}…` : plain || "Note details";
@@ -41,7 +41,7 @@ export async function generateMetadata(
       },
     };
   } catch {
-    // Якщо нотатку не знайдено — повертаємо коректні метадані 404-сторінки
+   
     const title = "Note not found";
     const description = "Такої нотатки не існує або вона була видалена.";
     return {

@@ -10,7 +10,7 @@ import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 
-// ✅ Глобальний Roboto (вимога ДЗ)
+
 const roboto = Roboto({
   subsets: ["latin", "cyrillic"],
   weight: ["400", "500", "700"],
@@ -18,10 +18,9 @@ const roboto = Roboto({
   variable: "--font-roboto",
 });
 
-// ⚙️ Базова URL (для OG url). Зафіксуй у .env.local, якщо деплоїш на Vercel:
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-// ✅ SEO + Open Graph (вимога ДЗ)
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {

@@ -11,7 +11,7 @@ export const revalidate = 0;
 type PageParams = { slug?: string[] };
 type PageSearch = { page?: string; search?: string };
 
-// ✅ SEO: generateMetadata відповідно до обраного фільтра
+
 export async function generateMetadata(
   {
     params,
@@ -33,7 +33,7 @@ export async function generateMetadata(
   const matched = tags.find((t) => t.toLowerCase() === lower);
   const tag: NoteTag | undefined = isAll ? undefined : (matched as NoteTag | undefined);
 
-  // Людський заголовок/опис
+  
   const titlePart = isAll ? "Усі нотатки" : `Нотатки з тегом “${matched ?? raw}”`;
   const descPart = isAll
     ? "Перегляд усіх нотаток у застосунку NoteHub."
@@ -42,7 +42,7 @@ export async function generateMetadata(
   const title = `${titlePart}`;
   const description = `${descPart}`;
 
-  // Побудова URL з урахуванням page/search
+ 
   const path = `/notes/filter/${isAll ? "all" : matched ?? raw}`;
   const qs = new URLSearchParams();
   if (pageStr) qs.set("page", pageStr);
@@ -74,8 +74,8 @@ export default async function NotesFilterPage({
   params,
   searchParams,
 }: {
-  params: Promise<PageParams>;           // зберігаю твою модель Promise-параметрів
-  searchParams: Promise<PageSearch>;     // і для searchParams теж
+  params: Promise<PageParams>;          
+  searchParams: Promise<PageSearch>;    
 }) {
   const { slug } = await params;
   const { page: pageStr, search: searchStr } = await searchParams;
