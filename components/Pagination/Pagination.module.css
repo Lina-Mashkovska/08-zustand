@@ -1,12 +1,11 @@
 .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    margin: 16px 0;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 40px;
+}
   
   .pagination li {
     border: 1px solid #dee2e6;
@@ -45,3 +44,6 @@
     color: #fff !important;
     font-weight: 500;
   }
+
+  
+  
