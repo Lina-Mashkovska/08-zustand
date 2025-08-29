@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./NoteForm.module.css";
 
 import { useNoteStore } from "@/lib/store/noteStore";
@@ -10,16 +11,26 @@ import { tags, type NoteTag, type NewNote } from "@/types/note";
 import { createNote as createNoteApi } from "@/lib/api";
 
 interface NoteFormProps {
-  onClose?: () => void; // опційно: якщо колись знову буде модалка
+  onClose?: () => void; 
 }
 
 export default function NoteForm({ onClose }: NoteFormProps) {
   const router = useRouter();
+  const qc = useQueryClient();
   const { draft, setDraft, clearDraft } = useNoteStore();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
 
-  // Автозбереження в Zustand при кожній зміні
+
+  const { mutateAsync, isPending, error } = useMutation({
+    mutationFn: (payload: NewNote) => createNoteApi(payload),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["notes"] });
+      clearDraft();
+      if (onClose) onClose();
+      else router.back();
+    },
+  });
+
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -30,36 +41,27 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    setErrorMsg(null);
-    setIsSubmitting(true);
+    setLocalError(null);
+
+    const payload: NewNote = {
+      title: draft.title.trim(),
+      content: draft.content.trim(),
+      tag: draft.tag,
+    };
+
+    if (!payload.title) {
+      setLocalError("Title є обов'язковим");
+      return;
+    }
 
     try {
-      const payload: NewNote = {
-        title: draft.title.trim(),
-        content: draft.content.trim(),
-        tag: draft.tag,
-      };
-
-      if (!payload.title) {
-        setErrorMsg("Title є обов'язковим");
-        setIsSubmitting(false);
-        return;
-      }
-
-      await createNoteApi(payload);
-
-      // Успішно: чистимо draft і повертаємось назад
-      clearDraft();
-      if (onClose) onClose();
-      else router.back();
-    } catch (err) {
-      console.error(err);
-      setErrorMsg("Не вдалося створити нотатку. Спробуйте ще раз.");
-      setIsSubmitting(false);
+      await mutateAsync(payload);
+    } catch {
+      setLocalError("Не вдалося створити нотатку. Спробуйте ще раз.");
     }
   };
 
-  // Cancel — без очищення draft
+
   const onCancel = () => {
     if (onClose) onClose();
     else router.back();
@@ -111,16 +113,21 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         </select>
       </div>
 
-      {errorMsg && <span className={css.error}>{errorMsg}</span>}
+      {(localError || error) && (
+        <span className={css.error}>
+          {localError ?? "Не вдалося створити нотатку. Спробуйте ще раз."}
+        </span>
+      )}
 
       <div className={css.actions}>
         <button type="button" onClick={onCancel} className={css.cancelButton}>
           Cancel
         </button>
-        <button type="submit" className={css.submitButton} disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create note"}
+        <button type="submit" className={css.submitButton} disabled={isPending}>
+          {isPending ? "Creating..." : "Create note"}
         </button>
       </div>
     </form>
   );
 }
+
